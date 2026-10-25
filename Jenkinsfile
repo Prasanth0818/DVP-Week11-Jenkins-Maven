@@ -1,5 +1,10 @@
+
 pipeline {
     agent any
+
+    environment {
+        PATH = "/opt/homebrew/bin:/opt/homebrew/opt/maven/bin:${env.PATH}"
+    }
 
     triggers {
         githubPush()
@@ -9,6 +14,16 @@ pipeline {
         stage('Checkout') {
             steps {
                 checkout scm
+            }
+        }
+
+        stage('Check Java and Maven') {
+            steps {
+                sh 'echo "Checking Java..."'
+                sh 'java -version'
+                sh 'echo "Checking Maven..."'
+                sh 'which mvn'
+                sh 'mvn -version'
             }
         }
 
@@ -31,9 +46,15 @@ pipeline {
     post {
         success {
             echo 'BUILD SUCCESSFUL!'
+            echo 'Maven build completed and artifacts archived.'
         }
+
         failure {
             echo 'BUILD FAILED! Check the console output.'
+        }
+
+        always {
+            echo 'Jenkins pipeline execution completed.'
         }
     }
 }
